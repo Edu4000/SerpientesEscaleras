@@ -11,8 +11,6 @@
 class MyGame {
 public:
     void start() {
-        int numberPlayers;
-        int turns;
         Tiles board[30]; // board[0] is tile[1]
         std::srand(time(0));
         Dice D = Dice();
@@ -39,12 +37,24 @@ public:
             }
         }
 
+        int numberPlayers;
+        int turns;
         // Welcome message and questions
         std::cout << "Welcome to Snakes and Ladders" << std::endl;
         std::cout << "How many players will play?" << std::endl;
-        std::cin >> numberPlayers;
+        while (!(std::cin >> numberPlayers)) {
+            std::cout << "Please introduce a number" << std::endl;
+            std::cin.clear();
+            std::cin.ignore(100, '\n');       
+        }
+        
         std::cout << "How many turns do you want?" << std::endl;
-        std::cin >> turns;
+        while (!(std::cin >> turns)) {
+            std::cout << "Please introduce a number" << std::endl;
+            std::cin.clear();
+            std::cin.ignore(100, '\n');       
+        }
+        
         std::cout << "Enjoy!!!\n" << std::endl;
 
         /* Start of the game */
