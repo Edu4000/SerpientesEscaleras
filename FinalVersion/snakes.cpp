@@ -1,76 +1,35 @@
-//
-// Created by conti on 5/23/2021.
-//
-
 #include <iostream>
 #include <fstream>
+#include <random>
+#include <string>
+#include <algorithm>
+#include <vector>
+#include <chrono>
 #include "Tiles.h"
 #include "Dice.h"
 #include "Player.h"
 #include "ctime"
-#include <string>
 
 class MyGame {
-public:
-    void start() {
-
-        int playMode;
-        // Welcome message and questions
-        std::cout << "Welcome to Snakes and Ladders" << std::endl;
-        std::cout << "Will you upload a play file or will you play? Play File | 0 ; Play | 1" << std::endl;
-        while (true) {
-            while (!(std::cin >> playMode)) {
-                std::cout << "Please introduce either one or cero" << std::endl;
-                std::cin.clear();
-                std::cin.ignore(100, '\n');
+private:
+    bool hasNumber(std::vector<int> specialCase, int num)
+    {
+        for (int i : specialCase)
+        {
+            if (i == num)
+            {
+                return true;
             }
-
-            if (playMode == 1) {
-                playInConsole();
-                break;
-            }
-
-            if (playMode == 0) {
-                std::string path;
-                std::cout << "Input file name: " << std::endl;
-                std::cin >> path;
-                playFromFile(path);
-                break;
-            }
-            std::cout << "Please introduce either one or cero" << std::endl;
         }
-
+        return false;
     }
 
-    void playInConsole() {
-        Tiles board[30]; // board[0] is tile[1]
-        std::srand(time(0));
-        Dice D = Dice();
-        Player * currPlayer;
-
-        /* Random locations for ladder and snake tiles are created */
-        int ld1 = 1 + (std::rand() % (5 - 1 + 1));
-        int sn1 = 6 + (std::rand() % (10 - 6 + 1));
-        int ld2 = 11 + (std::rand() % (15 - 11 + 1));
-        int sn2 = 16 + (std::rand() % (20 - 16 + 1));
-        int ld3 = 21 + (std::rand() % (25 - 21 + 1));
-        int sn3 = 26 + (std::rand() % (29 - 26 + 1));
-
-        for (int i = 0; i < 30; i++)
-        {
-            if ( (i == sn1) || (i == sn2) || (i == sn3))
-            {
-                board[i] = Tiles("Snake", i+1);
-            } else if ((i == ld1) || (i == ld2) || (i == ld3))
-            {
-                board[i] = Tiles("Ladder", i+1);
-            } else {
-                board[i] = Tiles("N", i+1);
-            }
-        }
-
-        int numberPlayers;
-        int turns;
+public:
+    void start() {
+        std::string playMode;
+        int numberPlayers;int turns;int tiles;int snakes;int ladders;int penalties;int rewards;
+        // Welcome message and questions
+        std::cout << "Welcome to Snakes and Ladders" << std::endl;
 
         std::cout << "How many players will play?" << std::endl;
         while (!(std::cin >> numberPlayers)) {
@@ -85,8 +44,101 @@ public:
             std::cin.clear();
             std::cin.ignore(100, '\n');
         }
+        
+        std::cout << "How many tiles in the board should they be?" << std::endl;
+        while (!(std::cin >> tiles)) {
+            std::cout << "Please introduce a number" << std::endl;
+            std::cin.clear();
+            std::cin.ignore(100, '\n');
+        }
 
-        std::cout << "Enjoy!!!\n" << std::endl;
+        std::cout << "How many snakes in the board should they be?" << std::endl;
+        while (!(std::cin >> snakes)) {
+            std::cout << "Please introduce a number" << std::endl;
+            std::cin.clear();
+            std::cin.ignore(100, '\n');
+        }
+
+        std::cout << "How many ladders in the board should they be?" << std::endl;
+        while (!(std::cin >> ladders)) {
+            std::cout << "Please introduce a number" << std::endl;
+            std::cin.clear();
+            std::cin.ignore(100, '\n');
+        }
+
+        std::cout << "What is the penalty for snake tiles?" << std::endl;
+        while (!(std::cin >> penalties)) {
+            std::cout << "Please introduce a number" << std::endl;
+            std::cin.clear();
+            std::cin.ignore(100, '\n');
+        }
+
+        std::cout << "What is the reward for ladder tiles?" << std::endl;
+        while (!(std::cin >> rewards)) {
+            std::cout << "Please introduce a number" << std::endl;
+            std::cin.clear();
+            std::cin.ignore(100, '\n');
+        }
+
+        std::cout << "Will you upload a play file or will you play? Play File | A ; Play | M" << std::endl;
+        while (true) {
+            
+
+            while (!(std::cin >> playMode)) {
+                std::cout << "Please introduce either A or M" << std::endl;
+                std::cin.clear();
+                std::cin.ignore(100, '\n');
+            }
+
+            if (playMode == "M") {
+                std::cout << "Enjoy!!!\n" << std::endl;
+                playInConsole(numberPlayers, turns, tiles, snakes, ladders, penalties, rewards);
+                break;
+            }
+            
+            if (playMode == "A") {
+                std::string path;
+                std::cout << "Input file name: " << std::endl;
+                std::cin >> path;
+                std::cout << "Enjoy!!!\n" << std::endl;
+                playFromFile(path, numberPlayers, turns, tiles, snakes, ladders, penalties, rewards);
+                break;
+            }
+            std::cout << "Please introduce either one or cero" << std::endl;
+        }
+    }
+
+    void playInConsole(int numberPlayers, int turns, int tiles, int snakes, int ladders, int penalties, int rewards) {
+        // Generating Game Elements
+        srand(time(0));
+        Tiles board[tiles]; // board[0] is tile[1]
+        Dice D = Dice();
+        Player * currPlayer;
+
+        if (snakes + ladders >= tiles) {
+            std::cout << "Error: there cannot neither more snakes, ladder,or both type of tiles than the total number of tiles" << std::endl;
+            exit(EXIT_FAILURE);
+        }
+
+        std::vector<int> specialCases;
+        int index;
+
+        // Getting index for Snakes
+        while (specialCases.size() != snakes) {
+            index = 1 + rand() % tiles;
+            if(!hasNumber(specialCases, index)) {
+                specialCases.push_back(index);
+                board[index] = Tiles("S",index,rewards,penalties);
+            }
+        }
+        // Getting index for Tiles
+        while (specialCases.size() != (snakes+ladders)) {
+            index = 1 + (rand() % tiles);
+            if(!hasNumber(specialCases, index)) {
+                specialCases.push_back(index);
+                board[index] = Tiles("L",index,rewards,penalties);
+            }
+        }
 
         /* Start of the game */
         std::cout << "Press C to continue next turn, or E to end the game: " << std::endl;
@@ -104,7 +156,6 @@ public:
 
         while (true) {
             std::cin >> input;
-
             try {
                 if (input == "C") {
                     // rest of the code
@@ -112,44 +163,26 @@ public:
 
                     /* Roll dice and find new positions for the player */
                     D.rollDice();
-                    std::string type;
                     int nextPos = currPlayer->getPos() + D.getDiceVal(); // Next absolute position given the player's absolute position plus the dice
-                    int finalPos;
+                    std::string type = board[nextPos].getTileType();
+                    // Moving Current Player
+                    nextPos += board[nextPos].additionalMove();
 
-                    for (int i = 0; i < 30; i++) {
-                        if (board[i].getTileNum() == nextPos) { // loop and find the tile with the same absolute position of the next position aof the player
-                            if (board[i].getTileType() == "Snake") {
-                                finalPos = nextPos - 3;
-                                type = "S";
-                            } else if(board[i].getTileType() == "Ladder") {
-                                finalPos = nextPos + 3;
-                                type = "L";
-                            } else {
-                                finalPos = nextPos;
-                                type = "N";
-                            }
-                        }
-                    }
-
-                    if (finalPos >= 29) { // If it is a ladder, then it does this and wins the game
+                    // If player exceeds maximun number of tiles
+                    if (nextPos >= tiles-1) { 
                         std::cout << "|Turn|Player|Tile|Dice|Type|EndUp|" << std::endl;
                         std::cout << "| " << turn+1 << "  |  " << currPlayer->getPlayerNum() << "  |  " << currPlayer->getPos()+1 << " |  " << D.getDiceVal() << " | " << type << " | " <<  "30 |" << std::endl;
-                        std::cout << "Player " << currPlayer->getPlayerNum() << " is the winner!!!" << std::endl;
-                        break;
-                    } else if (nextPos >= 29) { // If only moves, does this and wins the game
-                        std::cout << "|Turn|Player|Tile|Dice|Type|EndUp|" << std::endl;
-                        std::cout << "| " << turn+1 << " |  " << currPlayer->getPlayerNum() << "  | " << currPlayer->getPos()+1 << " |  " << D.getDiceVal() << " | N | " <<  "30 |" << std::endl;
                         std::cout << "Player " << currPlayer->getPlayerNum() << " is the winner!!!" << std::endl;
                         break;
                     }
 
                     /* Show result */
                     std::cout << "|Turn|Player|Tile|Dice|Type|EndUp|" << std::endl;
-                    std::cout << "| " << turn+1 << "  |  " << currPlayer->getPlayerNum() << "  |  " << currPlayer->getPos()+1 << " |  " << D.getDiceVal() << " |  " << type << "  |  " << finalPos+1 << "  |" << std::endl;
+                    std::cout << "| " << turn+1 << "  |  " << currPlayer->getPlayerNum() << "  |  " << currPlayer->getPos()+1 << " |  " << D.getDiceVal() << " |  " << type << "  |  " << nextPos+1 << "  |" << std::endl;
                     std::cout << "--------------------------------------------" << std::endl;
 
                     // Update player position, swap to the next player and update the turn
-                    currPlayer->setNewPos(finalPos);
+                    currPlayer->setNewPos(nextPos);
                     turn++;
 
                     if (turn >= turns) {
@@ -172,38 +205,42 @@ public:
         }
     }
 
-    void playFromFile(std::string path) {
+    void playFromFile(std::string path, int numberPlayers, int turns, int tiles, int snakes, int ladders, int penalties, int rewards) {
         std::ifstream file;
         std::string line;
         file.open(path);
+
+        // Generating Game Elements
         Tiles board[30]; // board[0] is tile[1]
         std::srand(time(0));
         Dice D = Dice();
         Player * currPlayer;
 
-        /* Random locations for ladder and snake tiles are created */
-        int ld1 = 1 + (std::rand() % (5 - 1 + 1));
-        int sn1 = 6 + (std::rand() % (10 - 6 + 1));
-        int ld2 = 11 + (std::rand() % (15 - 11 + 1));
-        int sn2 = 16 + (std::rand() % (20 - 16 + 1));
-        int ld3 = 21 + (std::rand() % (25 - 21 + 1));
-        int sn3 = 26 + (std::rand() % (29 - 26 + 1));
+        if (snakes + ladders >= tiles) {
+            std::cout << "Error: there cannot neither more snakes, ladder,or both type of tiles than the total number of tiles" << std::endl;
+            exit(EXIT_FAILURE);
+        }
 
-        for (int i = 0; i < 30; i++)
-        {
-            if ( (i == sn1) || (i == sn2) || (i == sn3))
-            {
-                board[i] = Tiles("Snake", i+1);
-            } else if ((i == ld1) || (i == ld2) || (i == ld3))
-            {
-                board[i] = Tiles("Ladder", i+1);
-            } else {
-                board[i] = Tiles("N", i+1);
+        std::vector<int> specialCases;
+        int index;
+
+        // Getting index for Snakes
+        while (specialCases.size() != snakes) {
+            index = 1 + rand() % tiles;
+            if(!hasNumber(specialCases, index)) {
+                specialCases.push_back(index);
+                board[index] = Tiles("S",index,rewards,penalties);
+            }
+        }
+        // Getting index for Tiles
+        while (specialCases.size() != (snakes+ladders)) {
+            index = 1 + (rand() % tiles);
+            if(!hasNumber(specialCases, index)) {
+                specialCases.push_back(index);
+                board[index] = Tiles("L",index,rewards,penalties);
             }
         }
 
-        int numberPlayers;
-        int turns;
         std::cout << line << std::endl;
 
         getline(file, line);
@@ -240,44 +277,26 @@ public:
 
                     /* Roll dice and find new positions for the player */
                     D.rollDice();
-                    std::string type;
                     int nextPos = currPlayer->getPos() + D.getDiceVal(); // Next absolute position given the player's absolute position plus the dice
-                    int finalPos;
+                    std::string type = board[nextPos].getTileType();
+                    // Moving Current Player
+                    nextPos += board[nextPos].additionalMove();
 
-                    for (int i = 0; i < 30; i++) {
-                        if (board[i].getTileNum() == nextPos) { // loop and find the tile with the same absolute position of the next position aof the player
-                            if (board[i].getTileType() == "Snake") {
-                                finalPos = nextPos - 3;
-                                type = "S";
-                            } else if(board[i].getTileType() == "Ladder") {
-                                finalPos = nextPos + 3;
-                                type = "L";
-                            } else {
-                                finalPos = nextPos;
-                                type = "N";
-                            }
-                        }
-                    }
-
-                    if (finalPos >= 29) { // If it is a ladder, then it does this and wins the game
+                    // If player exceeds maximun number of tiles
+                    if (nextPos >= tiles-1) { 
                         std::cout << "|Turn|Player|Tile|Dice|Type|EndUp|" << std::endl;
                         std::cout << "| " << turn+1 << "  |  " << currPlayer->getPlayerNum() << "  |  " << currPlayer->getPos()+1 << " |  " << D.getDiceVal() << " | " << type << " | " <<  "30 |" << std::endl;
-                        std::cout << "Player " << currPlayer->getPlayerNum() << " is the winner!!!" << std::endl;
-                        break;
-                    } else if (nextPos >= 29) { // If only moves, does this and wins the game
-                        std::cout << "|Turn|Player|Tile|Dice|Type|EndUp|" << std::endl;
-                        std::cout << "| " << turn+1 << " |  " << currPlayer->getPlayerNum() << "  | " << currPlayer->getPos()+1 << " |  " << D.getDiceVal() << " | N | " <<  "30 |" << std::endl;
                         std::cout << "Player " << currPlayer->getPlayerNum() << " is the winner!!!" << std::endl;
                         break;
                     }
 
                     /* Show result */
                     std::cout << "|Turn|Player|Tile|Dice|Type|EndUp|" << std::endl;
-                    std::cout << "| " << turn+1 << "  |  " << currPlayer->getPlayerNum() << "  |  " << currPlayer->getPos()+1 << " |  " << D.getDiceVal() << " |  " << type << "  |  " << finalPos+1 << "  |" << std::endl;
+                    std::cout << "| " << turn+1 << "  |  " << currPlayer->getPlayerNum() << "  |  " << currPlayer->getPos()+1 << " |  " << D.getDiceVal() << " |  " << type << "  |  " << nextPos+1 << "  |" << std::endl;
                     std::cout << "--------------------------------------------" << std::endl;
 
                     // Update player position, swap to the next player and update the turn
-                    currPlayer->setNewPos(finalPos);
+                    currPlayer->setNewPos(nextPos);
                     turn++;
 
                     if (turn >= turns) {
@@ -300,7 +319,7 @@ public:
             }
             line = "";
         }
-    };
+    }
 };
 
 int main()
