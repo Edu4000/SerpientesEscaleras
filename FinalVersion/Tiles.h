@@ -8,14 +8,18 @@
 #include <iostream>
 
 class Tiles {
-public:
+private:
+    int reward, penalty;
     std::string tileType;
     int tileNum;
 
+public:
     Tiles();
-    Tiles(std::string, int);
+    Tiles(std::string, int,int,int);
     int getTileNum();
     std::string getTileType();
+
+    int additionalMove();
 };
 
 #endif //SERPIENTESESCALERAS_TILES_H
