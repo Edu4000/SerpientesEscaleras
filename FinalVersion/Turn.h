@@ -8,6 +8,6 @@ public:
   Turn();
   void nextTurn();
   int getTurn();
-}
+};
 
 #endif //SERPIENTESESCALERAS_TURN_H

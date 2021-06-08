@@ -7,6 +7,7 @@
 #include <chrono>
 #include "Tiles.h"
 #include "Dice.h"
+#include "Turn.h"
 #include "Player.h"
 #include "ctime"
 
@@ -44,7 +45,7 @@ public:
             std::cin.clear();
             std::cin.ignore(100, '\n');
         }
-        
+
         std::cout << "How many tiles in the board should they be?" << std::endl;
         while (!(std::cin >> tiles)) {
             std::cout << "Please introduce a number" << std::endl;
@@ -82,7 +83,7 @@ public:
 
         std::cout << "Will you upload a play file or will you play? Play File | A ; Play | M" << std::endl;
         while (true) {
-            
+
 
             while (!(std::cin >> playMode)) {
                 std::cout << "Please introduce either A or M" << std::endl;
@@ -95,7 +96,7 @@ public:
                 playInConsole(numberPlayers, turns, tiles, snakes, ladders, penalties, rewards);
                 break;
             }
-            
+
             if (playMode == "A") {
                 std::string path;
                 std::cout << "Input file name: " << std::endl;
@@ -114,6 +115,7 @@ public:
         Tiles board[tiles]; // board[0] is tile[1]
         Dice D = Dice();
         Player * currPlayer;
+        Turn turn = Turn();
 
         if (snakes + ladders >= tiles) {
             std::cout << "Error: there cannot neither more snakes, ladder,or both type of tiles than the total number of tiles" << std::endl;
@@ -142,7 +144,6 @@ public:
 
         /* Start of the game */
         std::cout << "Press C to continue next turn, or E to end the game: " << std::endl;
-        int turn = 0;
 
         // Creating Array of Players
         Player players [numberPlayers];
@@ -159,7 +160,7 @@ public:
             try {
                 if (input == "C") {
                     // rest of the code
-                    currPlayer = &players[turn % numberPlayers];
+                    currPlayer = &players[turn.getTurn() % numberPlayers];
 
                     /* Roll dice and find new positions for the player */
                     D.rollDice();
@@ -169,25 +170,25 @@ public:
                     nextPos += board[nextPos].additionalMove();
 
                     // If player exceeds maximun number of tiles
-                    if (nextPos >= tiles-1) { 
+                    if (nextPos >= tiles-1) {
                         std::cout << "|Turn|Player|Tile|Dice|Type|EndUp|" << std::endl;
-                        std::cout << "| " << turn+1 << "  |  " << currPlayer->getPlayerNum() << "  |  " << currPlayer->getPos()+1 << " |  " << D.getDiceVal() << " | " << type << " | " <<  "30 |" << std::endl;
+                        std::cout << "| " << turn.getTurn()+1 << "  |  " << currPlayer->getPlayerNum() << "  |  " << currPlayer->getPos()+1 << " |  " << D.getDiceVal() << " | " << type << " | " <<  "30 |" << std::endl;
                         std::cout << "Player " << currPlayer->getPlayerNum() << " is the winner!!!" << std::endl;
                         break;
                     }
 
                     /* Show result */
                     std::cout << "|Turn|Player|Tile|Dice|Type|EndUp|" << std::endl;
-                    std::cout << "| " << turn+1 << "  |  " << currPlayer->getPlayerNum() << "  |  " << currPlayer->getPos()+1 << " |  " << D.getDiceVal() << " |  " << type << "  |  " << nextPos+1 << "  |" << std::endl;
+                    std::cout << "| " << turn.getTurn()+1 << "  |  " << currPlayer->getPlayerNum() << "  |  " << currPlayer->getPos()+1 << " |  " << D.getDiceVal() << " |  " << type << "  |  " << nextPos+1 << "  |" << std::endl;
                     std::cout << "--------------------------------------------" << std::endl;
 
                     // Update player position, swap to the next player and update the turn
                     currPlayer->setNewPos(nextPos);
-                    turn++;
+                    turn.nextTurn();
 
-                    if (turn >= turns) {
+                    if (turn.getTurn() >= turns) {
                         std::cout << "-- GAME OVER --" << std::endl;
-                        std::cout << "The maximum number of turns, which is " << turn << ", has been reached..." << std::endl;
+                        std::cout << "The maximum number of turns, which is " << turn.getTurn() << ", has been reached..." << std::endl;
                         break;
                     }
 
@@ -283,7 +284,7 @@ public:
                     nextPos += board[nextPos].additionalMove();
 
                     // If player exceeds maximun number of tiles
-                    if (nextPos >= tiles-1) { 
+                    if (nextPos >= tiles-1) {
                         std::cout << "|Turn|Player|Tile|Dice|Type|EndUp|" << std::endl;
                         std::cout << "| " << turn+1 << "  |  " << currPlayer->getPlayerNum() << "  |  " << currPlayer->getPos()+1 << " |  " << D.getDiceVal() << " | " << type << " | " <<  "30 |" << std::endl;
                         std::cout << "Player " << currPlayer->getPlayerNum() << " is the winner!!!" << std::endl;
