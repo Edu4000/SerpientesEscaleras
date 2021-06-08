@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <vector>
 #include <chrono>
+#include "InvalidConfigurationException.cpp"
+#include "InvalidOptionException.cpp"
 #include "Tiles.h"
 #include "Turn.h"
 #include "Dice.h"
@@ -34,9 +36,12 @@ public:
 
         std::cout << "How many players will play?" << std::endl;
         while (!(std::cin >> numberPlayers)) {
-            std::cout << "Please introduce a number" << std::endl;
-            std::cin.clear();
-            std::cin.ignore(100, '\n');
+        std::cout << "Please introduce a number" << std::endl;
+        std::cin.clear();
+        std::cin.ignore(100, '\n');
+        }
+        if (numberPlayers < 2) {
+            throw InvalidConfigurationException("numberPlayers", numberPlayers);
         }
 
         std::cout << "How many turns do you want?" << std::endl;
@@ -45,12 +50,18 @@ public:
             std::cin.clear();
             std::cin.ignore(100, '\n');
         }
+        if (turns < numberPlayers) {
+            throw InvalidConfigurationException("turns", turns);
+        }
 
         std::cout << "How many tiles in the board should they be?" << std::endl;
         while (!(std::cin >> tiles)) {
             std::cout << "Please introduce a number" << std::endl;
             std::cin.clear();
             std::cin.ignore(100, '\n');
+        }
+        if (tiles < 10) {
+            throw InvalidConfigurationException("tiles", tiles);
         }
 
         std::cout << "How many snakes in the board should they be?" << std::endl;
@@ -59,12 +70,18 @@ public:
             std::cin.clear();
             std::cin.ignore(100, '\n');
         }
+        if (snakes < 1) {
+            throw InvalidConfigurationException("snakes", snakes);
+        }
 
         std::cout << "How many ladders in the board should they be?" << std::endl;
         while (!(std::cin >> ladders)) {
             std::cout << "Please introduce a number" << std::endl;
             std::cin.clear();
             std::cin.ignore(100, '\n');
+        }
+        if (ladders < 1) {
+            throw InvalidConfigurationException("ladders", ladders);
         }
 
         std::cout << "What is the penalty for snake tiles?" << std::endl;
@@ -73,12 +90,18 @@ public:
             std::cin.clear();
             std::cin.ignore(100, '\n');
         }
+        if (penalties < 1) {
+            throw InvalidConfigurationException("penalties", penalties);
+        }
 
         std::cout << "What is the reward for ladder tiles?" << std::endl;
         while (!(std::cin >> rewards)) {
             std::cout << "Please introduce a number" << std::endl;
             std::cin.clear();
             std::cin.ignore(100, '\n');
+        }
+        if (rewards < 1) {
+            throw InvalidConfigurationException("rewards", rewards);
         }
 
         std::cout << "Will you upload a play file or will you play? Play File | A ; Play | M" << std::endl;
@@ -154,6 +177,7 @@ public:
 
         // While loop
         std::string input;
+        int menuChoice = 0;
 
         while (true) {
             std::cin >> input;
@@ -197,11 +221,23 @@ public:
                     std::cout << "Thanks for playing!!!" << std::endl;
                     break;
                 } else {
-                    throw 404;
+                    menuChoice++;
+                    if (menuChoice > 5) {
+                        throw InvalidOptionException(1);
+                    }
+                    throw InvalidOptionException(0);
+                }
+            }            
+            catch (InvalidOptionException &msj) {
+                if (msj.getValue() == 0) {
+                    std::cout << msj.what() << std::endl;
+                } else {
+                    std::cout << msj.what() << std::endl;
+                    break;
                 }
             }
-            catch (...) {
-                std::cout << "Invalid option, please press C to continue next turn or E to end the game" << std::endl;
+            catch (const char *msj) {
+                std::cout << msj << std::endl;
             }
         }
     }
@@ -326,6 +362,11 @@ public:
 int main()
 {
     MyGame G;
-    G.start();
+    try {
+        G.start();
+    } catch (InvalidConfigurationException &msj) {
+        cout << msj.what() << endl;
+        return 1;
+    }
     return 0;
 }
