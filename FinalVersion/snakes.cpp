@@ -105,7 +105,7 @@ public:
                 playFromFile(path, numberPlayers, turns, tiles, snakes, ladders, penalties, rewards);
                 break;
             }
-            std::cout << "Please introduce either M or A" << std::endl;
+            std::cout << "Please introduce either A or M" << std::endl;
         }
     }
 
@@ -164,23 +164,23 @@ public:
 
                     /* Roll dice and find new positions for the player */
                     D.rollDice();
-                    int nextPos = currPlayer->getPos() + D.getDiceVal(); // Next absolute position given the player's absolute position plus the dice
-                    std::string type = board[nextPos].getTileType();
-                    // Moving Current Player
-                    nextPos += board[nextPos].additionalMove();
+                    // Next absolute position given the player's absolute position plus the dice
+                    int nextPos = currPlayer->getPos() + (D + board[currPlayer->getPos() + D.getDiceVal()]).getDiceVal(); // Sobrecarga de +
+                    std::string type = board[currPlayer->getPos() + D.getDiceVal()].getTileType();
+                    turn.setDice(D);
+                    turn.setPlayer(*currPlayer);
+                    turn.setTiles(board[currPlayer->getPos() + D.getDiceVal()]);
 
                     // If player exceeds maximun number of tiles
                     if (nextPos >= tiles-1) {
-                        std::cout << "|Turn|Player|Tile|Dice|Type|EndUp|" << std::endl;
-                        std::cout << "| " << turn.getTurn()+1 << "  |  " << currPlayer->getPlayerNum() << "  |  " << currPlayer->getPos()+1 << " |  " << D.getDiceVal() << " | " << type << " | " <<  "30 |" << std::endl;
-                        std::cout << "Player " << currPlayer->getPlayerNum() << " is the winner!!!" << std::endl;
+                        turn.setNextPos(tiles);
+                        std::cout << turn;
                         break;
                     }
 
                     /* Show result */
-                    std::cout << "|Turn|Player|Tile|Dice|Type|EndUp|" << std::endl;
-                    std::cout << "| " << turn.getTurn()+1 << "  |  " << currPlayer->getPlayerNum() << "  |  " << currPlayer->getPos()+1 << " |  " << D.getDiceVal() << " |  " << type << "  |  " << nextPos+1 << "  |" << std::endl;
-                    std::cout << "--------------------------------------------" << std::endl;
+                    turn.setNextPos(nextPos);
+                    std::cout << turn;
 
                     // Update player position, swap to the next player and update the turn
                     currPlayer->setNewPos(nextPos);
@@ -278,23 +278,23 @@ public:
 
                     /* Roll dice and find new positions for the player */
                     D.rollDice();
-                    int nextPos = currPlayer->getPos() + D.getDiceVal(); // Next absolute position given the player's absolute position plus the dice
-                    std::string type = board[nextPos].getTileType();
-                    // Moving Current Player
-                    nextPos += board[nextPos].additionalMove();
+                    // Next absolute position given the player's absolute position plus the dice
+                    int nextPos = currPlayer->getPos() + (D + board[currPlayer->getPos() + D.getDiceVal()]).getDiceVal(); // Sobrecarga de +
+                    std::string type = board[currPlayer->getPos() + D.getDiceVal()].getTileType();
+                    turn.setDice(D);
+                    turn.setPlayer(*currPlayer);
+                    turn.setTiles(board[currPlayer->getPos() + D.getDiceVal()]);
 
                     // If player exceeds maximun number of tiles
                     if (nextPos >= tiles-1) {
-                        std::cout << "|Turn|Player|Tile|Dice|Type|EndUp|" << std::endl;
-                        std::cout << "| " << turn.getTurn()+1 << "  |  " << currPlayer->getPlayerNum() << "  |  " << currPlayer->getPos()+1 << " |  " << D.getDiceVal() << " | " << type << " | " <<  "30 |" << std::endl;
-                        std::cout << "Player " << currPlayer->getPlayerNum() << " is the winner!!!" << std::endl;
+                        turn.setNextPos(tiles);
+                        std::cout << turn;
                         break;
                     }
 
                     /* Show result */
-                    std::cout << "|Turn|Player|Tile|Dice|Type|EndUp|" << std::endl;
-                    std::cout << "| " << turn.getTurn()+1 << "  |  " << currPlayer->getPlayerNum() << "  |  " << currPlayer->getPos()+1 << " |  " << D.getDiceVal() << " |  " << type << "  |  " << nextPos+1 << "  |" << std::endl;
-                    std::cout << "--------------------------------------------" << std::endl;
+                    turn.setNextPos(nextPos);
+                    std::cout << turn;
 
                     // Update player position, swap to the next player and update the turn
                     currPlayer->setNewPos(nextPos);
