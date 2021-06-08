@@ -105,7 +105,7 @@ public:
                 playFromFile(path, numberPlayers, turns, tiles, snakes, ladders, penalties, rewards);
                 break;
             }
-            std::cout << "Please introduce either one or cero" << std::endl;
+            std::cout << "Please introduce either M or A" << std::endl;
         }
     }
 
