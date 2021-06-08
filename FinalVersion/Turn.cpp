@@ -11,3 +11,19 @@ void Turn::nextTurn() {
 int Turn::getTurn() {
   return this->turn;
 }
+
+void Turn::setDice(Dice d) {
+    this->d = d;
+}
+
+void Turn::setPlayer(Player p) {
+    this->p = p;
+}
+
+void Turn::setTiles(Tiles t) {
+    this->t = t;
+}
+
+void Turn::setNextPos(int next) {
+    this->nextPos = next;
+}
